@@ -8,7 +8,7 @@ It displays the number of queries made, along with the answer per second rate re
 
 First:
 
-    go install github.com/MickaelBergem/dnsstresss@latest
+    go install github.com/Millerovrus/dnsstresss@latest
 
 Then:
 
