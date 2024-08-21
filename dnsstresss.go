@@ -23,6 +23,7 @@ var (
 	resolver        string
 	randomIds       bool
 	flood           bool
+	vrf             string
 )
 
 func init() {
@@ -40,6 +41,8 @@ func init() {
 		"Resolver to test against")
 	flag.BoolVar(&flood, "f", false,
 		"Don't wait for an answer before sending another")
+	flag.StringVar(&vrf, "vrf", "",
+		"VRF for edns option")
 }
 
 func main() {
@@ -111,6 +114,11 @@ func main() {
 
 func testRequest(domain string) bool {
 	message := new(dns.Msg).SetQuestion(domain, dns.TypeA)
+	if vrf != "" {
+		opt := &dns.EDNS0_LOCAL{Code: 0x13, Data: []byte(vrf)}
+		o := &dns.OPT{Hdr: dns.RR_Header{Name: ".", Rrtype: dns.TypeOPT}, Option: []dns.EDNS0{opt}}
+		message.Extra = append(message.Extra, o)
+	}
 	if iterative {
 		message.RecursionDesired = false
 	}
@@ -134,6 +142,11 @@ func linearResolver(threadID int, domain string, sentCounterCh chan<- statsMessa
 	errors := 0
 
 	message := new(dns.Msg).SetQuestion(domain, dns.TypeA)
+	if vrf != "" {
+		opt := &dns.EDNS0_LOCAL{Code: 0x13, Data: []byte(vrf)}
+		o := &dns.OPT{Hdr: dns.RR_Header{Name: ".", Rrtype: dns.TypeOPT}, Option: []dns.EDNS0{opt}}
+		message.Extra = append(message.Extra, o)
+	}
 	if iterative {
 		message.RecursionDesired = false
 	}
